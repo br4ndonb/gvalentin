@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Partículas en Forma de Corazón</title>
+    <title>Kuromi en Partículas</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         body, html {
             width: 100%;
             height: 100%;
-            background: #111;
+            background: #d8bfd8; /* Fondo lila claro */
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -33,24 +33,16 @@
         const canvas = document.getElementById('particlesCanvas');
         const ctx = canvas.getContext('2d');
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            updateHeartShape();
-        }
-
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
         class Particle {
-            constructor(x, y, targetX, targetY) {
+            constructor(x, y, targetX, targetY, color = 'white') {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.targetX = targetX;
                 this.targetY = targetY;
                 this.vx = Math.random() * 4 - 2;
                 this.vy = Math.random() * 4 - 2;
-                this.radius = canvas.width < 600 ? 2 : 3; // Ajuste de tamaño para pantallas pequeñas
+                this.radius = 4;
+                this.color = color;
             }
 
             move() {
@@ -68,38 +60,91 @@
             moveToTarget() {
                 const dx = this.targetX - this.x;
                 const dy = this.targetY - this.y;
-                this.x += dx * 0.005;
-                this.y += dy * 0.005;
+                this.x += dx * 0.02;
+                this.y += dy * 0.02;
             }
 
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'red';
+                ctx.fillStyle = this.color;
                 ctx.fill();
             }
         }
 
-        let heartPoints = [];
         let particles = [];
 
-        function createHeartShape(scale, offsetX, offsetY) {
-            const points = [];
-            for (let t = 0; t < Math.PI * 2; t += 0.1) {
-                const x = 16 * Math.pow(Math.sin(t), 3);
-                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-                points.push({ x: x * scale + offsetX, y: y * scale + offsetY });
+        // Matriz de colores extraída del archivo Excel (30x32)
+        const colors = [
+    ["#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F"],
+    ["#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#FF69B0", "#FF69B0", "#000000", "#000000", "#FF69B0", "#FF69B0", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F"],
+    ["#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F"],
+    ["#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000"],
+    ["#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#000000", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#000000", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000"],
+    ["#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#000000", "#FF69B0", "#FF69B0", "#000000", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000"],
+    ["#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000"],
+    ["#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000"],
+    ["#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000"],
+    ["#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FF69B0", "#2E2C2F", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#2E2C2F", "#FF69B0", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FF69B0", "#2E2C2F", "#2E2C2F", "#FF69B0", "#FF69B0", "#2E2C2F", "#2E2C2F", "#FF69B0", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000"],
+    ["#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000"],
+    ["#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000"],
+    ["#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000"],
+    ["#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#d8bfd8", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000"],
+    ["#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FF69B0", "#FF69B0", "#FFFFFF", "#FFFFFF", "#FF69B0", "#FF69B0", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FF69B0", "#FF69B0", "#FFFFFF", "#FFFFFF", "#FF69B0", "#FF69B0", "#d8bfd8", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000"],
+    ["#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#d8bfd8", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FFFFFF", "#FFFFFF", "#F6D221", "#F6D221", "#FFFFFF", "#FFFFFF", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#d8bfd8", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FF69B0", "#FF69B0", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FF69B0", "#FF69B0", "#FFFFFF", "#d8bfd8", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000"],
+    ["#000000", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#000000"],
+    ["#000000", "#FF69B0", "#000000", "#FF69B0", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#FF69B0", "#000000", "#FF69B0", "#000000"],
+    ["#000000", "#FF69B0", "#FF69B0", "#FF69B0", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#FF69B0", "#FF69B0", "#FF69B0", "#FF69B0", "#2E2C2F", "#FFFFFF", "#FFFFFF", "#2E2C2F", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#FF69B0", "#FF69B0", "#FF69B0", "#000000"],
+    ["#000000", "#FF69B0", "#FF69B0", "#FF69B0", "#000000", "#000000", "#000000", "#000000", "#000000", "#2E2C2F", "#2E2C2F", "#000000", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#000000", "#2E2C2F", "#2E2C2F", "#000000", "#000000", "#000000", "#000000", "#000000", "#FF69B0", "#FF69B0", "#FF69B0", "#000000"],
+    ["#000000", "#000000", "#FF69B0", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#FF69B0", "#000000", "#000000"],
+];
+
+        function createKuromiPattern(scale, offsetX, offsetY) {
+            const particlesArray = [];
+
+            for (let y = 0; y < colors.length; y++) {
+                for (let x = 0; x < colors[y].length; x++) {
+                    const color = colors[y][x];
+                    if (color) {
+                        particlesArray.push({
+                            x: offsetX + x * scale,
+                            y: offsetY + y * scale,
+                            color
+                        });
+                    }
+                }
             }
-            return points;
+
+            return particlesArray;
         }
 
-        function updateHeartShape() {
-            const scale = canvas.width < 600 ? 5 : 10; // Ajuste de escala para pantallas pequeñas
-            heartPoints = createHeartShape(scale, canvas.width / 2, canvas.height / 2);
-            particles = heartPoints.map(point => new Particle(point.x, point.y, point.x, point.y));
+        function updateShapes() {
+            const scale = 15;
+            const offsetX = (canvas.width - scale * colors[0].length) / 2;
+            const offsetY = (canvas.height - scale * colors.length) / 2;
+
+            const kuromiPoints = createKuromiPattern(scale, offsetX, offsetY);
+
+            particles = kuromiPoints.map(point => new Particle(point.x, point.y, point.x, point.y, point.color));
         }
 
-        updateHeartShape();
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            updateShapes();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
         let formation = false;
 
