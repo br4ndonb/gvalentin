@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kuromi en Partículas</title>
     <style>
         * {
@@ -21,8 +21,15 @@
         }
         canvas {
             display: block;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        @media (max-width: 768px) {
+            canvas {
+                width: 100vw;
+                height: 100vh;
+            }
         }
     </style>
 </head>
@@ -41,7 +48,7 @@
                 this.targetY = targetY;
                 this.vx = Math.random() * 4 - 2;
                 this.vy = Math.random() * 4 - 2;
-                this.radius = 4;
+                this.radius = window.innerWidth < 768 ? 2 : 4; // Ajuste para dispositivos móviles
                 this.color = color;
             }
 
@@ -74,7 +81,6 @@
 
         let particles = [];
 
-        // Matriz de colores extraída del archivo Excel (30x32)
         const colors = [
     ["#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8"],
     ["#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8", "#D8BFD8"],
@@ -136,7 +142,7 @@
         }
 
         function updateShapes() {
-            const scale = 15;
+            const scale = window.innerWidth < 768 ? 10 : 15; // Ajuste para dispositivos móviles
             const offsetX = (canvas.width - scale * colors[0].length) / 2;
             const offsetY = (canvas.height - scale * colors.length) / 2;
 
