@@ -21,6 +21,8 @@
         }
         canvas {
             display: block;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
@@ -31,13 +33,14 @@
         const canvas = document.getElementById('particlesCanvas');
         const ctx = canvas.getContext('2d');
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        window.addEventListener('resize', () => {
+        function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-        });
+            updateHeartShape();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
         class Particle {
             constructor(x, y, targetX, targetY) {
@@ -47,7 +50,7 @@
                 this.targetY = targetY;
                 this.vx = Math.random() * 4 - 2;
                 this.vy = Math.random() * 4 - 2;
-                this.radius = 3;
+                this.radius = canvas.width < 600 ? 2 : 3; // Ajuste de tamaño para pantallas pequeñas
             }
 
             move() {
@@ -65,8 +68,8 @@
             moveToTarget() {
                 const dx = this.targetX - this.x;
                 const dy = this.targetY - this.y;
-                this.x += dx * 0.005; // Movimiento más lento hacia el objetivo
-                this.y += dy * 0.005; // Movimiento más lento hacia el objetivo
+                this.x += dx * 0.005;
+                this.y += dy * 0.005;
             }
 
             draw() {
@@ -76,6 +79,9 @@
                 ctx.fill();
             }
         }
+
+        let heartPoints = [];
+        let particles = [];
 
         function createHeartShape(scale, offsetX, offsetY) {
             const points = [];
@@ -87,8 +93,13 @@
             return points;
         }
 
-        const heartPoints = createHeartShape(10, canvas.width / 2, canvas.height / 2);
-        const particles = heartPoints.map(point => new Particle(point.x, point.y, point.x, point.y));
+        function updateHeartShape() {
+            const scale = canvas.width < 600 ? 5 : 10; // Ajuste de escala para pantallas pequeñas
+            heartPoints = createHeartShape(scale, canvas.width / 2, canvas.height / 2);
+            particles = heartPoints.map(point => new Particle(point.x, point.y, point.x, point.y));
+        }
+
+        updateHeartShape();
 
         let formation = false;
 
