@@ -89,46 +89,7 @@
         const message = document.getElementById('message');
         const refreshButton = document.getElementById('refreshButton');
 
-        class Particle {
-            constructor(x, y, targetX, targetY, color = 'white') {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.targetX = targetX;
-                this.targetY = targetY;
-                this.vx = Math.random() * 4 - 2;
-                this.vy = Math.random() * 4 - 2;
-                this.radius = window.innerWidth < 768 ? 1.5 : 3;
-                this.color = color;
-            }
-
-            move() {
-                if (Math.random() < 0.01) {
-                    this.vx = Math.random() * 4 - 2;
-                    this.vy = Math.random() * 4 - 2;
-                }
-                this.x += this.vx;
-                this.y += this.vy;
-
-                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-            }
-
-            moveToTarget() {
-                const dx = this.targetX - this.x;
-                const dy = this.targetY - this.y;
-                this.x += dx * 0.02;
-                this.y += dy * 0.02;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-        }
-
-        let particles = [];
+        let currentColors = 1; // Alternar entre colors y colors2
 
         const colors = [
     ["#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0"],
@@ -171,12 +132,55 @@
     ["#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0", "#E0C9E0"],
 ];
 
-        function createKuromiPattern(scale, offsetX, offsetY) {
+        const colors2 = [['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#ff69b0', '#ff69b0', '#ff69b0', '#ff69b0', '#ff69b0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#ff69b0', '#ff69b0', '#ff69b0', '#ff69b0', '#ff69b0', '#ff69b0', '#ff69b0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#ff69b0', '#2e2c2f', '#ff69b0', '#ff69b0', '#ff69b0', '#2e2c2f', '#ff69b0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#ff69b0', '#ff69b0', '#ff69b0', '#ff69b0', '#ff69b0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#ff69b0', '#ff69b0', '#ff69b0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#ff69b0', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#ff69b0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#ff69b0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#ff69b0', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#ff69b0', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#2e2c2f', '#2e2c2f', '#FFFFFF', '#FFFFFF', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#2e2c2f', '#2e2c2f', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0'], ['#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0', '#E0C9E0']];
+
+        class Particle {
+            constructor(x, y, targetX, targetY, color = 'white') {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.vx = Math.random() * 4 - 2;
+                this.vy = Math.random() * 4 - 2;
+                this.radius = window.innerWidth < 768 ? 1.5 : 3;
+                this.color = color;
+            }
+
+            move() {
+                if (Math.random() < 0.01) {
+                    this.vx = Math.random() * 4 - 2;
+                    this.vy = Math.random() * 4 - 2;
+                }
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            moveToTarget() {
+                const dx = this.targetX - this.x;
+                const dy = this.targetY - this.y;
+                this.x += dx * 0.02;
+                this.y += dy * 0.02;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+        }
+
+        let particles = [];
+
+        function createPattern(colorMatrix, scale, offsetX, offsetY) {
             const particlesArray = [];
 
-            for (let y = 0; y < colors.length; y++) {
-                for (let x = 0; x < colors[y].length; x++) {
-                    const color = colors[y][x];
+            for (let y = 0; y < colorMatrix.length; y++) {
+                for (let x = 0; x < colorMatrix[y].length; x++) {
+                    const color = colorMatrix[y][x];
                     if (color && color !== "#E0C9E0") {
                         particlesArray.push({
                             x: offsetX + x * scale,
@@ -195,9 +199,10 @@
             const offsetX = (canvas.width - scale * colors[0].length) / 2;
             const offsetY = 50; // Posicionar la imagen de partículas en la parte superior
 
-            const kuromiPoints = createKuromiPattern(scale, offsetX, offsetY);
+            const colorMatrix = currentColors === 1 ? colors : colors2;
+            const patternPoints = createPattern(colorMatrix, scale, offsetX, offsetY);
 
-            particles = kuromiPoints.map(point => new Particle(point.x, point.y, point.x, point.y, point.color));
+            particles = patternPoints.map(point => new Particle(point.x, point.y, point.x, point.y, point.color));
         }
 
         function resizeCanvas() {
@@ -237,10 +242,11 @@
             }, 3000);
         }, 5000);
 
-        // Función para refrescar la animación
+        // Alternar entre colors y colors2 al hacer clic en el botón de refrescar
         refreshButton.addEventListener('click', () => {
             message.style.opacity = 0;
             formation = false;
+            currentColors = currentColors === 1 ? 2 : 1; // Alternar
             resizeCanvas();
 
             setTimeout(() => {
