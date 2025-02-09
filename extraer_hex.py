@@ -1,33 +1,35 @@
-import openpyxl
+from openpyxl import load_workbook
 
-# Ruta del archivo Excel
-file_path = './excel/kuromi_hex.xlsx'  # Reemplaza con la ruta de tu archivo
+def leer_hoja_excel(archivo, nombre_hoja):
+    """Lee una hoja específica de un archivo de Excel y devuelve su contenido como matriz."""
+    wb = load_workbook(archivo, data_only=True)  # Carga el archivo sin evaluar fórmulas
+    
+    if nombre_hoja not in wb.sheetnames:
+        raise ValueError(f"La hoja '{nombre_hoja}' no existe en el archivo.")
 
-# Cargar el archivo Excel
-wb = openpyxl.load_workbook(file_path, data_only=True)
+    ws = wb[nombre_hoja]
+    matriz = []
 
-# Seleccionar la hoja (por ejemplo, "Hoja 4")
-sheet = wb['Hoja 1']  # Asegúrate de que la hoja exista con este nombre
+    for fila in ws.iter_rows(values_only=True):
+        matriz.append(list(fila))  # Convertimos la fila en lista y la agregamos a la matriz
 
-# Función para obtener el color hexadecimal de una celda
-def get_hex_color(cell):
-    fill = cell.fill
-    if fill and fill.fgColor and fill.fgColor.type == 'rgb':
-        return f'#{fill.fgColor.rgb[:6]}'  # Extrae el color RGB en formato hexadecimal
-    return '#FFFFFF'  # Si no hay color, asigna blanco por defecto
+    return {f"particulas_{nombre_hoja}": matriz}  # Usamos el nombre de la hoja en la variable
 
-# Extraer los colores de cada celda y crear la matriz
-colors = []
-for row in sheet.iter_rows():
-    row_colors = [get_hex_color(cell) for cell in row]
-    colors.append(row_colors)
+def exportar_a_txt(datos, archivo_salida):
+    """Exporta la matriz de la hoja seleccionada a un archivo de texto."""
+    with open(archivo_salida, "w", encoding="utf-8") as f:
+        for nombre, matriz in datos.items():
+            f.write(f"particulas_ = {matriz};\n\n")  # Formato de salida
 
-# Generar el código de la variable `colors`
-colors_code = f"const colors = {colors};"
+# 📌 Uso del código
+archivo_excel = "./excel/SANVALENTIN_2.xlsx"  # Reemplázalo con el nombre de tu archivo
+archivo_txt = "./colors/colors_variable.txt"
+nombre_hoja = "Hoja 1"  # Reemplázalo con la hoja que deseas leer
 
-# Guardar el código en un archivo de texto
-output_path = './colors/colors_variable.txt'
-with open(output_path, 'w') as file:
-    file.write(colors_code)
+try:
+    datos = leer_hoja_excel(archivo_excel, nombre_hoja)
+    exportar_a_txt(datos, archivo_txt)
+    print(f"📄 Archivo exportado exitosamente como {archivo_txt}")
+except ValueError as e:
+    print(f"⚠️ Error: {e}")
 
-print(f'El archivo ha sido guardado exitosamente en {output_path}')
