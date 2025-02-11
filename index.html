@@ -98,7 +98,7 @@ particulas_3 = [["#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#f
                     setTimeout(barrido, 50); // Ajusta el tiempo para el efecto de barrido
                 } else {
                     matriz_actual = nuevaMatriz;
-                    setTimeout(() => cambiarEstado("formar"), 5000);
+                    setTimeout(() => cambiarEstado("formar"), 2000);
                 }
             }
             barrido();
@@ -107,7 +107,7 @@ particulas_3 = [["#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#f
         function cambiarEstado(nuevoEstado) {
             estado = nuevoEstado;
             if (nuevoEstado === "formar") {
-                setTimeout(() => cambiarMatrizConBarrido(), 3000);
+                setTimeout(() => cambiarMatrizConBarrido(), 2000);
             }
         }
 
@@ -123,7 +123,7 @@ particulas_3 = [["#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#f
         crearParticulas(particulas_1);
         cambiarEstado("rebote");
         animar();
-        setTimeout(() => cambiarEstado("formar"), 5000);
+        setTimeout(() => cambiarEstado("formar"), 3000);
     </script>
 </body>
 </html>

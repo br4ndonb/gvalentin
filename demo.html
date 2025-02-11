@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Animación de Partículas</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; background-color: #fdf3f4;}
         body, html { width: 100%; height: 100%; overflow: hidden; }
         canvas { display: block; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; }
     </style>
@@ -98,7 +98,7 @@ particulas_3 = [["#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#f
                     setTimeout(barrido, 50); // Ajusta el tiempo para el efecto de barrido
                 } else {
                     matriz_actual = nuevaMatriz;
-                    setTimeout(() => cambiarEstado("formar"), 5000);
+                    setTimeout(() => cambiarEstado("formar"), 500);
                 }
             }
             barrido();
@@ -107,7 +107,7 @@ particulas_3 = [["#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#f
         function cambiarEstado(nuevoEstado) {
             estado = nuevoEstado;
             if (nuevoEstado === "formar") {
-                setTimeout(() => cambiarMatrizConBarrido(), 3000);
+                setTimeout(() => cambiarMatrizConBarrido(), 500);
             }
         }
 
@@ -123,7 +123,7 @@ particulas_3 = [["#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#fdf3f4","#f
         crearParticulas(particulas_1);
         cambiarEstado("rebote");
         animar();
-        setTimeout(() => cambiarEstado("formar"), 5000);
+        setTimeout(() => cambiarEstado("formar"), 3000);
     </script>
 </body>
 </html>
